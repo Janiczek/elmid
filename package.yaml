@@ -1,0 +1,44 @@
+name:                elmid
+version:             0.1.0.0
+github:              "Janiczek/elmid"
+license:             BSD3
+author:              "Martin Janiczek"
+maintainer:          "martin@janiczek.cz"
+copyright:           "2021 Martin Janiczek"
+
+extra-source-files:
+- README.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/Janiczek/elmid#readme>
+
+dependencies:
+- base >=4.12 && <4.13
+- brick
+- cherry-core-alpha
+
+library:
+  source-dirs: src
+  default-extensions:
+  - NoImplicitPrelude
+  - OverloadedStrings
+
+executables:
+  elmid-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - elmid
+    default-extensions:
+    - NoImplicitPrelude
+    - OverloadedStrings
