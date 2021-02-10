@@ -14,7 +14,7 @@ import qualified System.Linux.Inotify as FS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 
-watchElmFiles :: BChan Msg -> (FilePath -> BChan Msg -> IO ()) -> IO ()
+watchElmFiles :: BChan Msg -> (Maybe FilePath -> BChan Msg -> IO ()) -> IO ()
 watchElmFiles chan handleEvent = do
   inotify <- FS.init
   -- TODO make the path to file-watch configurable
@@ -23,7 +23,7 @@ watchElmFiles chan handleEvent = do
     event <- FS.getEvent inotify
     let path = T.unpack <| TE.decodeUtf8 <| FS.name event
     when (isElmFile path) <|
-      handleEvent path chan
+      handleEvent (Just path) chan
 
 addWatchesRecursively :: FS.Inotify -> FilePath -> IO ()
 addWatchesRecursively inotify dirpath = do

@@ -19,7 +19,7 @@ data Model = Model
 
 data Status
   = AllGood
-  | Compiling String
+  | Compiling (Maybe String)
   | Errors (List Error)
   
 data Error = Error
@@ -38,7 +38,7 @@ data Name = ErrorAtIndex Int
   deriving (Show, Ord, Eq)
 
 data Msg
-  = RecompileStarted String
+  = RecompileStarted (Maybe String)
   | GotElmMakeOutput (ExitCode, String, String)
   deriving (Show)
 
@@ -64,8 +64,11 @@ draw model =
 drawAllGood :: Widget Name
 drawAllGood = withAttr (attrName "good") <| str "All good!"
 
-drawCompiling :: String -> Widget Name
-drawCompiling triggerFile = str <| String.toList <| "Compiling (triggered by: " ++ triggerFile ++ ")"
+drawCompiling :: Maybe String -> Widget Name
+drawCompiling triggerFile = 
+  str <| case triggerFile of
+    Nothing -> "Compiling"
+    Just file -> String.toList <| "Compiling (triggered by: " ++ file ++ ")"
 
 drawErrors :: List Error -> Widget Name
 drawErrors errors = 

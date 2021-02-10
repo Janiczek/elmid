@@ -14,6 +14,7 @@ import qualified Graphics.Vty as V
 main :: IO ()
 main = do
   chan <- newBChan 10
+  recompile Nothing chan
   void <| forkIO <| watchElmFiles chan recompile
 
   let buildVty = do
