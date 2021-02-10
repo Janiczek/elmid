@@ -25,6 +25,13 @@ packages:
       sha256: 487d3c49453c9fe980508f446c3286088e4abc3611747233f465f9b0fa3b9f04
   original:
     hackage: linux-inotify-0.3.0.2@sha256:c1babde8fd104151696cf4cf95f21d72a056ead89f879abf68330476c818af44,2538
+- completed:
+    hackage: dir-traverse-0.2.3.0@sha256:adcc128f201ff95131b15ffe41365dc99c50dc3fa3a910f021521dc734013bfa,2137
+    pantry-tree:
+      size: 389
+      sha256: b19f0562746dfd0f8f21eccab6584592f55fb781ca3e043da9132cc23d8a5b99
+  original:
+    hackage: dir-traverse-0.2.3.0@sha256:adcc128f201ff95131b15ffe41365dc99c50dc3fa3a910f021521dc734013bfa,2137
 snapshots:
 - completed:
     size: 524996

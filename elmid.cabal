@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 371b5d7aed870769992fe81bfd39179c70a3e2626ba628719b9abc29e00ea045
+-- hash: 3349617aeae001bf930efac9d55871946ac8f1f224027b1884a16b254c9ee4ad
 
 name:           elmid
 version:        0.1.0.0
@@ -37,6 +37,8 @@ library
     , base >=4.12 && <4.13
     , brick
     , cherry-core-alpha
+    , dir-traverse
+    , directory
     , linux-inotify
     , process
     , text
@@ -56,6 +58,8 @@ executable elmid-exe
     , base >=4.12 && <4.13
     , brick
     , cherry-core-alpha
+    , dir-traverse
+    , directory
     , elmid
     , linux-inotify
     , process

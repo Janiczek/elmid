@@ -22,6 +22,8 @@ dependencies:
 - base >=4.12 && <4.13
 - brick
 - cherry-core-alpha
+- directory
+- dir-traverse
 - Glob
 - linux-inotify
 - process
