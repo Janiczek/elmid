@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 126d8abe45ef1927911734b919bdce70198399520d2940af1e97e1e899320e89
+-- hash: f0dabb2d028bbade89cf8e5e7965e7d47171307e966ce7a44d53fd34146a3698
 
 name:           elmid
 version:        0.1.0.0
@@ -42,6 +42,7 @@ library
     , directory
     , linux-inotify
     , process
+    , split
     , text
     , vty
   default-language: Haskell2010
@@ -66,6 +67,7 @@ executable elmid
     , elmid
     , linux-inotify
     , process
+    , split
     , text
     , vty
   default-language: Haskell2010

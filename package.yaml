@@ -27,6 +27,7 @@ dependencies:
 - Glob
 - linux-inotify
 - process
+- split
 - text
 - vty
 

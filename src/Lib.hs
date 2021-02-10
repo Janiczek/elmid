@@ -1,6 +1,6 @@
 module Lib (Msg(..), initModel, app) where
 
-import Errors (ErrorData(..))
+import Errors (ErrorInfo)
 import Brick
 import Brick.AttrMap
 import Cherry.Prelude
@@ -11,6 +11,7 @@ import System.Exit (ExitCode(ExitSuccess))
 import qualified Graphics.Vty as V
 import qualified Errors
 import qualified Brick.Types as T
+import Brick.Widgets.Table as BT
 
 data Model = Model
   { mStatus :: Status
@@ -23,7 +24,7 @@ data Status
   | Errors (List Error)
   
 data Error = Error
-  { eData :: ErrorData
+  { eInfo :: ErrorInfo
   , eExpanded :: Bool
   }
 
@@ -73,19 +74,20 @@ drawCompiling triggerFile =
 drawErrors :: List Error -> Widget Name
 drawErrors errors = 
   errors
-    |> List.indexedMap drawError
-    |> vBox
+  |> List.indexedMap drawError
+  |> BT.table
+  |> BT.alignRight 2
+  |> BT.renderTable
 
-drawError :: Int -> Error -> Widget Name
+drawError :: Int -> Error -> List (Widget Name)
 drawError i err =
   if eExpanded err then
-    drawExpandedError i <| eData err
+    drawExpandedError i <| eInfo err
   else
-    drawCollapsedError i <| eData err
+    drawCollapsedError i <| eInfo err
 
-drawExpandedError :: Int -> ErrorData -> Widget Name
-drawExpandedError i (DummyError n) =
-  hBox
+drawExpandedError :: Int -> ErrorInfo -> List (Widget Name)
+drawExpandedError i info =
     [ clickable (ErrorAtIndex i) <| str "[-] "
     , vBox
         [ clickable (ErrorAtIndex i) <| str "Dummy Error"
@@ -96,12 +98,10 @@ drawExpandedError i (DummyError n) =
     ]
 
 
-drawCollapsedError :: Int -> ErrorData -> Widget Name
-drawCollapsedError i (DummyError n) =
-  clickable (ErrorAtIndex i) <|
-    hBox
-      [ str "[+] "
-      , str <| String.toList <| "Dummy Error " ++ String.fromInt n
+drawCollapsedError :: Int -> ErrorInfo -> List (Widget Name)
+drawCollapsedError i info =
+      [ clickable (ErrorAtIndex i) <| str "[+] "
+      , clickable (ErrorAtIndex i) <| str <| String.toList <| "Dummy Error " ++ String.fromInt n
       ]
 
 ------- ATTR MAP
@@ -148,8 +148,8 @@ handleEvent model event =
             if exitCode == ExitSuccess then
               AllGood
             else
-              stdout
-              |> Errors.fromElmMakeStdout
+              stderr
+              |> Errors.fromElmMakeStderr
               |> List.map (\errorData -> Error errorData False)
               |> Errors
           }
