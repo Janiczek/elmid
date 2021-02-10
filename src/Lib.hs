@@ -1,15 +1,16 @@
 module Lib (Msg(..), initModel, app) where
 
+import Errors (ErrorData(..))
 import Brick
 import Brick.AttrMap
-import qualified Brick.Types as T
-import qualified Debug
 import Cherry.Prelude
 import List
 import String
-import qualified Graphics.Vty as V
 import Prelude (return, show, Show, Ord, Eq, error)
-import System.Exit (ExitCode)
+import System.Exit (ExitCode(ExitSuccess))
+import qualified Graphics.Vty as V
+import qualified Errors
+import qualified Brick.Types as T
 
 data Model = Model
   { mStatus :: Status
@@ -25,9 +26,6 @@ data Error = Error
   { eData :: ErrorData
   , eExpanded :: Bool
   }
-
-data ErrorData
-  = DummyError Int
 
 initModel :: Model
 initModel =
@@ -136,7 +134,18 @@ handleEvent model event =
 
     T.AppEvent e ->
       case e of
-        RecompileStarted filepath -> continue model
-        GotElmMakeOutput output -> continue model 
+        RecompileStarted filepath ->
+          continue <| model { mStatus = Compiling filepath }
+
+        GotElmMakeOutput (exitCode, stdout, stderr) -> 
+          continue <| model { mStatus = 
+            if exitCode == ExitSuccess then
+              AllGood
+            else
+              stdout
+              |> Errors.fromElmMakeStdout
+              |> List.map (\errorData -> Error errorData False)
+              |> Errors
+          }
 
     _ ->  continue model
