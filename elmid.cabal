@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a09177e221fb916eff6518fefdeb8877a8ebc027fe4eb91e02d7be84e5e3f93a
+-- hash: 3fe38488ce984ad9ca2bd1b8db0230863911bcd3fad43552f3b6fee582c4cca2
 
 name:           elmid
 version:        0.1.0.0
@@ -45,9 +45,10 @@ library
     , vty
   default-language: Haskell2010
 
-executable elmid-exe
+executable elmid
   main-is: Main.hs
   other-modules:
+      Recompile
       Watch
       Paths_elmid
   hs-source-dirs:
