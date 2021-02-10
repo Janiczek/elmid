@@ -62,7 +62,7 @@ draw model =
     Errors errors -> [drawErrors errors]
 
 drawAllGood :: Widget Name
-drawAllGood = str "All good!"
+drawAllGood = withAttr (attrName "good") <| str "All good!"
 
 drawCompiling :: String -> Widget Name
 drawCompiling triggerFile = str <| String.toList <| "Compiling (triggered by: " ++ triggerFile ++ ")"
@@ -104,7 +104,10 @@ drawCollapsedError i (DummyError n) =
 ------- ATTR MAP
 
 attributeMap :: Model -> AttrMap
-attributeMap _ = attrMap V.defAttr []
+attributeMap _ = 
+  attrMap V.defAttr 
+    [ (attrName "good", fg V.green)
+    ]
 
 ------- EVENT
 
