@@ -1,4 +1,4 @@
-module Lib (initModel, app) where
+module Lib (Msg(..), initModel, app) where
 
 import Brick
 import Brick.AttrMap
@@ -9,9 +9,11 @@ import List
 import String
 import qualified Graphics.Vty as V
 import Prelude (return, show, Show, Ord, Eq, error)
+import System.Exit (ExitCode)
 
 data Model = Model
   { mErrors :: List Error
+  , mLog :: List String
   }
 
 data Error = Error
@@ -24,7 +26,10 @@ data ErrorData
 
 initModel :: Model
 initModel =
-  Model { mErrors = errors }
+  Model 
+    { mErrors = errors 
+    , mLog = [] 
+    }
     where
       errors =
         [ Error 
@@ -44,7 +49,12 @@ initModel =
 data Name = ErrorAtIndex Int 
   deriving (Show, Ord, Eq)
 
-app :: App Model () Name
+data Msg
+  = GotElmMakeOutput (ExitCode, String, String)
+  | Log String
+  deriving (Show)
+
+app :: App Model Msg Name
 app =
   App
     { appDraw = draw
@@ -60,20 +70,34 @@ draw :: Model -> List (Widget Name)
 draw model = 
   let
     errors = mErrors model
+    log = mLog model
   in
   if List.isEmpty errors then
-    [drawGoodUi]
+    [drawGoodUi log]
   else
-    [drawBadUi errors]
+    [drawBadUi log errors]
 
-drawGoodUi :: Widget Name
-drawGoodUi = str "All good!"
+drawDebug :: List String -> Widget Name
+drawDebug log =
+  log
+    |> List.map (String.toList >> str)
+    |> vBox
 
-drawBadUi :: List Error -> Widget Name
-drawBadUi errors = 
+drawGoodUi :: List String -> Widget Name
+--drawGoodUi = str "All good!"
+drawGoodUi log = hBox [str "All good!", drawDebug log]
+
+drawBadUi :: List String -> List Error -> Widget Name
+drawBadUi log errors = 
+--  errors
+--    |> List.indexedMap drawError
+--    |> vBox
+  hBox [
   errors
     |> List.indexedMap drawError
     |> vBox
+       , drawDebug log
+  ]
 
 drawError :: Int -> Error -> Widget Name
 drawError i err =
@@ -110,7 +134,7 @@ attributeMap _ = attrMap V.defAttr []
 
 ------- EVENT
 
-handleEvent :: Model -> BrickEvent Name () -> EventM Name (Next Model)
+handleEvent :: Model -> BrickEvent Name Msg -> EventM Name (Next Model)
 
 handleEvent model (T.MouseDown (ErrorAtIndex toggledIndex) _ _ _) = 
   continue (model { mErrors = 
@@ -128,6 +152,17 @@ handleEvent model (T.VtyEvent e) =
     V.EvKey V.KEsc [] -> halt model
     V.EvKey (V.KChar 'q') [] -> halt model
     V.EvKey (V.KChar 'c') [V.MCtrl] -> halt model
-    _ -> case Debug.log "vty event" e of _ -> continue model
+    _ -> continue <| addLog "vty event" (Debug.toString e) model
 
-handleEvent model _ = continue model
+handleEvent model (T.AppEvent (GotElmMakeOutput output)) = 
+  continue <| addLog "got elm output" (Debug.toString output) model
+
+handleEvent model (T.AppEvent (Log message)) = 
+  continue <| addLog "log" message model
+
+handleEvent model e = 
+  continue <| addLog "unhandled event" (Debug.toString e) model
+
+addLog :: String -> String -> Model -> Model
+addLog label message model =
+  model { mLog = (label ++ ": " ++ message) : mLog model }

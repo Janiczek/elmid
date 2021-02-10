@@ -5,19 +5,20 @@ import Brick.BChan
 import Cherry.Prelude
 import Control.Concurrent (forkIO)
 import Control.Monad (void, forever)
-import Lib
-import Prelude (IO, (=<<), return, Maybe(Nothing), FilePath)
 import Debug
+import System.FilePath.Glob (Pattern)
+import Lib
+import Prelude (IO, (=<<), return, Maybe(..), FilePath, putStrLn, error)
 import String
-import System.Process (readProcess)
-import Twitch ((|+),(|%),(|-))
+import System.FSNotify as FS
+import System.Process (readProcessWithExitCode)
+import qualified System.FilePath.Glob as Glob
 import qualified Graphics.Vty as V
-import qualified Twitch as T
 
 main :: IO ()
 main = do
   chan <- newBChan 10
-  void <| forkIO <| forever <| watchElmFiles chan
+  void <| forkIO <| watchElmFiles chan
 
   let buildVty = do
         v <- V.mkVty =<< V.standardIOConfig
@@ -26,21 +27,34 @@ main = do
 
   initialVty <- buildVty
 
-  void <| customMain initialVty buildVty Prelude.Nothing app initModel
+  void <| customMain initialVty buildVty (Prelude.Just chan) app initModel
 
-watchElmFiles :: BChan String -> IO ()
-watchElmFiles chan =
-  T.defaultMain <| do
-    -- TODO this *.elm path configurable
-    "client/*.elm" |+ runElmMake -- on add
-                   |% runElmMake -- on modify
-                   |- runElmMake -- on delete
-      where
-        runElmMake :: FilePath -> IO ()
-        runElmMake _ = do
-          -- TODO make path to Elm configurable
-          -- TODO make path to Main.elm configurable
-          stdout <- readProcess "elm" ["make", "client/app-monolithic/src/Entry.elm", "--output", "/dev/null"] ""
-          writeBChan chan (String.fromList stdout)
+watchElmFiles :: BChan Msg -> IO ()
+watchElmFiles chan = do
+  mgr <- FS.startManager
+  -- TODO make the path to file-watch configurable
+  void <| FS.watchTree mgr "client" shouldRecompile recompile
+  where
+    shouldRecompile :: Event -> Bool
+    shouldRecompile event =
+      isElmFile <| eventPath event
 
+    isElmFile :: FilePath -> Bool
+    isElmFile path =
+      Glob.match elmFilePattern path
 
+    recompile :: Event -> IO ()
+    recompile event = do
+      -- TODO make path to Elm configurable
+      -- TODO make path to Main.elm configurable
+      writeBChan chan <| Log <| "running elm make because of " ++ String.fromList (eventPath event)
+      (exitCode, stdout, stderr) <- readProcessWithExitCode "elm" ["make", "client/app-monolithic/src/Entry.elm", "--output", "/dev/null"] ""
+      writeBChan chan <| GotElmMakeOutput 
+        ( exitCode
+        , String.fromList stdout
+        , String.fromList stderr
+        )
+
+elmFilePattern :: Pattern
+elmFilePattern =
+  Glob.compile "**/*.elm"

@@ -22,8 +22,9 @@ dependencies:
 - base >=4.12 && <4.13
 - brick
 - cherry-core-alpha
+- fsnotify
+- Glob
 - process
-- twitch
 - vty
 
 library:
