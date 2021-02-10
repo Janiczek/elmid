@@ -12,10 +12,15 @@ import Prelude (return, show, Show, Ord, Eq, error)
 import System.Exit (ExitCode)
 
 data Model = Model
-  { mErrors :: List Error
+  { mStatus :: Status
   , mLog :: List String
   }
 
+data Status
+  = AllGood
+  | Compiling String
+  | Errors (List Error)
+  
 data Error = Error
   { eData :: ErrorData
   , eExpanded :: Bool
@@ -27,31 +32,16 @@ data ErrorData
 initModel :: Model
 initModel =
   Model 
-    { mErrors = errors 
+    { mStatus = AllGood
     , mLog = [] 
     }
-    where
-      errors =
-        [ Error 
-          { eData = DummyError 42
-          , eExpanded = True 
-          }
-        , Error 
-          { eData = DummyError (-1)
-          , eExpanded = False 
-          }
-        , Error 
-          { eData = DummyError 999
-          , eExpanded = True
-          }
-        ]
 
 data Name = ErrorAtIndex Int 
   deriving (Show, Ord, Eq)
 
 data Msg
-  = GotElmMakeOutput (ExitCode, String, String)
-  | Log String
+  = RecompileStarted String
+  | GotElmMakeOutput (ExitCode, String, String)
   deriving (Show)
 
 app :: App Model Msg Name
@@ -68,36 +58,22 @@ app =
 
 draw :: Model -> List (Widget Name)
 draw model = 
-  let
-    errors = mErrors model
-    log = mLog model
-  in
-  if List.isEmpty errors then
-    [drawGoodUi log]
-  else
-    [drawBadUi log errors]
+  case mStatus model of
+    AllGood -> [drawAllGood]
+    Compiling triggerFile -> [drawCompiling triggerFile]
+    Errors errors -> [drawErrors errors]
 
-drawDebug :: List String -> Widget Name
-drawDebug log =
-  log
-    |> List.map (String.toList >> str)
-    |> vBox
+drawAllGood :: Widget Name
+drawAllGood = str "All good!"
 
-drawGoodUi :: List String -> Widget Name
---drawGoodUi = str "All good!"
-drawGoodUi log = hBox [str "All good!", drawDebug log]
+drawCompiling :: String -> Widget Name
+drawCompiling triggerFile = str <| String.toList <| "Compiling (triggered by: " ++ triggerFile ++ ")"
 
-drawBadUi :: List String -> List Error -> Widget Name
-drawBadUi log errors = 
---  errors
---    |> List.indexedMap drawError
---    |> vBox
-  hBox [
+drawErrors :: List Error -> Widget Name
+drawErrors errors = 
   errors
     |> List.indexedMap drawError
     |> vBox
-       , drawDebug log
-  ]
 
 drawError :: Int -> Error -> Widget Name
 drawError i err =
@@ -135,34 +111,32 @@ attributeMap _ = attrMap V.defAttr []
 ------- EVENT
 
 handleEvent :: Model -> BrickEvent Name Msg -> EventM Name (Next Model)
+handleEvent model event =
+  case event of
+    T.MouseDown (ErrorAtIndex toggledIndex) _ _ _ ->
+      continue <|
+        case mStatus model of
+          Errors errors ->
+            model { mStatus = 
+                          errors
+                            |> List.indexedMap (\i err -> 
+                              if i == toggledIndex then err { eExpanded = not <| eExpanded err } 
+                              else                      err
+                            )
+                            |> Errors
+                  }
+          _ -> model
 
-handleEvent model (T.MouseDown (ErrorAtIndex toggledIndex) _ _ _) = 
-  continue (model { mErrors = 
-    mErrors model
-    |> List.indexedMap (\i err -> 
-      if i == toggledIndex then
-        err { eExpanded = not <| eExpanded err } 
-      else
-        err
-    )})
+    T.VtyEvent e ->
+      case e of
+        V.EvKey V.KEsc        []        -> halt model
+        V.EvKey (V.KChar 'q') []        -> halt model
+        V.EvKey (V.KChar 'c') [V.MCtrl] -> halt model
+        _ -> continue model
 
+    T.AppEvent e ->
+      case e of
+        RecompileStarted filepath -> continue model
+        GotElmMakeOutput output -> continue model 
 
-handleEvent model (T.VtyEvent e) = 
-  case e of
-    V.EvKey V.KEsc [] -> halt model
-    V.EvKey (V.KChar 'q') [] -> halt model
-    V.EvKey (V.KChar 'c') [V.MCtrl] -> halt model
-    _ -> continue <| addLog "vty event" (Debug.toString e) model
-
-handleEvent model (T.AppEvent (GotElmMakeOutput output)) = 
-  continue <| addLog "got elm output" (Debug.toString output) model
-
-handleEvent model (T.AppEvent (Log message)) = 
-  continue <| addLog "log" message model
-
-handleEvent model e = 
-  continue <| addLog "unhandled event" (Debug.toString e) model
-
-addLog :: String -> String -> Model -> Model
-addLog label message model =
-  model { mLog = (label ++ ": " ++ message) : mLog model }
+    _ ->  continue model

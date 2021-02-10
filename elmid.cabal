@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3349617aeae001bf930efac9d55871946ac8f1f224027b1884a16b254c9ee4ad
+-- hash: a09177e221fb916eff6518fefdeb8877a8ebc027fe4eb91e02d7be84e5e3f93a
 
 name:           elmid
 version:        0.1.0.0
@@ -48,6 +48,7 @@ library
 executable elmid-exe
   main-is: Main.hs
   other-modules:
+      Watch
       Paths_elmid
   hs-source-dirs:
       app
