@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7207fd86966847bc248ec79d626ecc18780f9478e047dd2bad19bde67b0920a9
+-- hash: 371b5d7aed870769992fe81bfd39179c70a3e2626ba628719b9abc29e00ea045
 
 name:           elmid
 version:        0.1.0.0
@@ -37,8 +37,9 @@ library
     , base >=4.12 && <4.13
     , brick
     , cherry-core-alpha
-    , fsnotify
+    , linux-inotify
     , process
+    , text
     , vty
   default-language: Haskell2010
 
@@ -56,7 +57,8 @@ executable elmid-exe
     , brick
     , cherry-core-alpha
     , elmid
-    , fsnotify
+    , linux-inotify
     , process
+    , text
     , vty
   default-language: Haskell2010

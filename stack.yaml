@@ -43,6 +43,7 @@ packages:
 extra-deps:
 - cherry-core-alpha-0.5.0.0@sha256:9c0346ab298a57211d99a1f045a477ed59fa4bbdcb0ac6cbea2a0abfee4683e0,2581
 - text-utf8-1.2.3.0@sha256:5c921fdb926f21a654036f2d42c79b04ea4303dbc5f28eabd48423c27ff10816,8127
+- linux-inotify-0.3.0.2@sha256:c1babde8fd104151696cf4cf95f21d72a056ead89f879abf68330476c818af44,2538
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
