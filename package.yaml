@@ -22,6 +22,9 @@ dependencies:
 - base >=4.12 && <4.13
 - brick
 - cherry-core-alpha
+- process
+- twitch
+- vty
 
 library:
   source-dirs: src

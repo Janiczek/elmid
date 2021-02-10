@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b7cd17379985c1122f540c0bcc02e48e971a183b7d9a5c7589c0621b1d17b421
+-- hash: 2a39463edda364731a53dd626658e18ee35b5012c1e01a9e85df449a94437604
 
 name:           elmid
 version:        0.1.0.0
@@ -36,6 +36,9 @@ library
       base >=4.12 && <4.13
     , brick
     , cherry-core-alpha
+    , process
+    , twitch
+    , vty
   default-language: Haskell2010
 
 executable elmid-exe
@@ -51,4 +54,7 @@ executable elmid-exe
     , brick
     , cherry-core-alpha
     , elmid
+    , process
+    , twitch
+    , vty
   default-language: Haskell2010
