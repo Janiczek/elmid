@@ -5,6 +5,7 @@ import Control.Monad (forever, void, when)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Data.Traversable (for)
+import Flags
 import Lib (Msg)
 import NriPrelude
 import System.Directory (doesDirectoryExist)
@@ -15,11 +16,10 @@ import qualified System.Linux.Inotify as FS
 import Prelude (FilePath, IO, return)
 
 
-watchElmFiles :: BChan Msg -> (Maybe FilePath -> BChan Msg -> IO ()) -> IO ()
-watchElmFiles chan handleEvent = do
+watchElmFiles :: Flags -> BChan Msg -> (Maybe FilePath -> BChan Msg -> IO ()) -> IO ()
+watchElmFiles flags chan handleEvent = do
     inotify <- FS.init
-    -- TODO make the path to file-watch configurable
-    addWatchesRecursively inotify "client"
+    addWatchesRecursively inotify (fWatchedFolder flags)
     forever <| do
         event <- FS.getEvent inotify
         let path = T.unpack <| TE.decodeUtf8 <| FS.name event

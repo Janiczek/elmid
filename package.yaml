@@ -26,6 +26,7 @@ dependencies:
 - Glob
 - linux-inotify
 - nri-prelude
+- optparse-applicative
 - process
 - split
 - text

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7e58a6015410ea73a73fc5d30b5c1c5e4e9f463aa759b0fbd1273564e9e7f589
+-- hash: 88bc353bcdff774c4749a55ab8d94d7344a296a4ec972cc3b4da03ff03861b05
 
 name:           elmid
 version:        0.1.0.0
@@ -41,6 +41,7 @@ library
     , directory
     , linux-inotify
     , nri-prelude
+    , optparse-applicative
     , process
     , split
     , text
@@ -50,6 +51,7 @@ library
 executable elmid
   main-is: Main.hs
   other-modules:
+      Flags
       Recompile
       Watch
       Paths_elmid
@@ -66,6 +68,7 @@ executable elmid
     , elmid
     , linux-inotify
     , nri-prelude
+    , optparse-applicative
     , process
     , split
     , text

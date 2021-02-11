@@ -2,7 +2,6 @@
 
 ## TODO
 
-- [ ] command-line options instead of hardcoded values
 - [ ] preserve colors
 - [ ] perhaps group by file?
 - [ ] ellipsis-clamp the path *from the left* so that the filename is always shown
