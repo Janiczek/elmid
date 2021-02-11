@@ -3,7 +3,10 @@ module Lib (Msg (..), initModel, app) where
 import Brick (App (..), AttrMap, BrickEvent, EventM, Next, Widget)
 import qualified Brick as B
 import qualified Brick.Types as T
+import Data.Function (on)
+import qualified Data.List as List (groupBy)
 import qualified Data.List.NonEmpty as NonEmpty
+import Data.Maybe (fromJust)
 import Errors (ErrorInfo (..))
 import qualified Errors
 import qualified Graphics.Vty as V
@@ -89,8 +92,23 @@ drawCompiling triggerFile =
 drawErrors :: List Error -> Widget Name
 drawErrors errors =
     errors
-        |> List.indexedMap drawError
+        |> List.groupBy ((==) `on` (eInfo >> ePath))
+        |> List.map drawErrorsForPath
         |> B.vBox
+
+
+drawErrorsForPath :: List Error -> Widget Name
+drawErrorsForPath errors =
+    let path =
+            List.head errors
+                |> fromJust
+                |> eInfo
+                |> ePath
+     in ( (B.withAttr (B.attrName "path") <| B.str path) :
+          List.indexedMap drawError errors
+            ++ [B.str " "]
+        )
+            |> B.vBox
 
 
 drawError :: Int -> Error -> Widget Name
@@ -126,10 +144,8 @@ emptyLineToSpace line =
 drawCollapsedError :: Int -> ErrorInfo -> Widget Name
 drawCollapsedError i info =
     B.hBox
-        -- TODO group by paths?
         [ B.clickable (ErrorAtIndex i) <| B.str "[+] "
         , B.clickable (ErrorAtIndex i) <| B.str <| eFirstLine info
-        , B.clickable (ErrorAtIndex i) <| B.withAttr (B.attrName "path") <| B.str <| ePath info
         ]
 
 
@@ -140,7 +156,7 @@ attributeMap _ =
     B.attrMap
         V.defAttr
         [ (B.attrName "good", B.fg V.green)
-        , (B.attrName "path", B.fg V.brightBlack)
+        , (B.attrName "path", B.fg V.yellow)
         ]
 
 
