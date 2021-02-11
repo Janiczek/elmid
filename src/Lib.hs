@@ -1,16 +1,16 @@
 module Lib (Msg(..), initModel, app) where
 
-import Errors (ErrorInfo)
+import Errors (ErrorInfo(..))
 import Brick
 import Brick.AttrMap
-import Cherry.Prelude
+import NriPrelude
 import List
-import String
-import Prelude (return, show, Show, Ord, Eq, error)
+import Prelude (return, show, Show, Ord, Eq, error, String)
 import System.Exit (ExitCode(ExitSuccess))
 import qualified Graphics.Vty as V
 import qualified Errors
 import qualified Brick.Types as T
+import qualified Data.List.NonEmpty as NonEmpty
 import Brick.Widgets.Table as BT
 
 data Model = Model
@@ -69,7 +69,7 @@ drawCompiling :: Maybe String -> Widget Name
 drawCompiling triggerFile = 
   str <| case triggerFile of
     Nothing -> "Compiling"
-    Just file -> String.toList <| "Compiling (triggered by: " ++ file ++ ")"
+    Just file -> "Compiling (triggered by: " ++ file ++ ")"
 
 drawErrors :: List Error -> Widget Name
 drawErrors errors = 
@@ -89,19 +89,20 @@ drawError i err =
 drawExpandedError :: Int -> ErrorInfo -> List (Widget Name)
 drawExpandedError i info =
     [ clickable (ErrorAtIndex i) <| str "[-] "
-    , vBox
-        [ clickable (ErrorAtIndex i) <| str "Dummy Error"
-        , clickable (ErrorAtIndex i) <| str "==========="
-        , str <| String.toList <| "  " ++ String.fromInt n
-        , clickable (ErrorAtIndex i) <| str " "
-        ]
+    , eFullError info
+        |> NonEmpty.toList
+        |> List.map str
+        |> vBox
+    , str ""
     ]
 
 
 drawCollapsedError :: Int -> ErrorInfo -> List (Widget Name)
 drawCollapsedError i info =
+  -- TODO group by paths?
       [ clickable (ErrorAtIndex i) <| str "[+] "
-      , clickable (ErrorAtIndex i) <| str <| String.toList <| "Dummy Error " ++ String.fromInt n
+      , clickable (ErrorAtIndex i) <| str <| eFirstLine info
+      , clickable (ErrorAtIndex i) <| str <| ePath info
       ]
 
 ------- ATTR MAP

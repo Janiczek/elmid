@@ -19,13 +19,13 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/Janiczek/elmid#readme>
 
 dependencies:
-- base >=4.12 && <4.13
-- brick
-- cherry-core-alpha
-- directory
+- base >= 4.7 && < 5
+- brick >= 0.60
 - dir-traverse
+- directory
 - Glob
 - linux-inotify
+- nri-prelude
 - process
 - split
 - text

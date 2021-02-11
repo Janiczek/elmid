@@ -5,7 +5,7 @@ import Brick.BChan (BChan)
 import Lib (Msg)
 import System.Directory (doesDirectoryExist)
 import Control.Monad (void, forever, when)
-import Cherry.Prelude
+import NriPrelude
 import System.FilePath.Glob (Pattern)
 import Prelude (IO, FilePath, return)
 import qualified System.FilePath.Glob as Glob

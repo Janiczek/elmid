@@ -1,12 +1,12 @@
-module Errors (ErrorInfo, fromElmMakeStderr) where
+module Errors (ErrorInfo(..), fromElmMakeStderr) where
 
-import Cherry.Prelude
+import NriPrelude
+import Data.List (isPrefixOf, lines)
 import Data.List.NonEmpty (NonEmpty, nonEmpty)
 import Data.List.Split (splitWhen)
 import Data.Maybe (mapMaybe)
-import Prelude (dropWhile)
+import Prelude (dropWhile, String)
 import qualified List
-import qualified String
 import qualified Maybe
 import qualified Data.List.NonEmpty as NonEmpty
 
@@ -19,14 +19,14 @@ data ErrorInfo = ErrorInfo
 fromElmMakeStderr :: String -> List ErrorInfo
 fromElmMakeStderr stderr =
   stderr
-  |> String.lines
+  |> lines
   |> splitWhen isErrorHeader
   |> mapMaybe nonEmpty 
   |> List.map toErrorInfo
 
 isErrorHeader :: String -> Bool
 isErrorHeader line =
-  String.startsWith "-- " line
+  "-- " `isPrefixOf` line
 
 toErrorInfo :: NonEmpty String -> ErrorInfo
 toErrorInfo errorLines =
@@ -43,8 +43,6 @@ toErrorInfo errorLines =
 errorPath :: NonEmpty String -> String
 errorPath errorLines =
   NonEmpty.head errorLines
-    |> String.dropLeft 3
-    |> String.toList
+    |> List.drop 3
     |> dropWhile (/= '-')
     |> dropWhile (== '-')
-    |> String.fromList

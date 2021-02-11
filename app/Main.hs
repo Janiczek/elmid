@@ -2,11 +2,11 @@ module Main where
 
 import Brick (customMain)
 import Brick.BChan (newBChan)
-import Cherry.Prelude
+import NriPrelude
 import Control.Concurrent (forkIO)
 import Control.Monad (void)
 import Lib (app, initModel)
-import Prelude (Maybe(Just), (=<<), return)
+import Prelude (Maybe(Just), (=<<), return, IO)
 import Recompile (recompile)
 import Watch (watchElmFiles)
 import qualified Graphics.Vty as V
