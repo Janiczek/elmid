@@ -11,7 +11,6 @@ import qualified Graphics.Vty as V
 import qualified Errors
 import qualified Brick.Types as T
 import qualified Data.List.NonEmpty as NonEmpty
-import Brick.Widgets.Table as BT
 
 data Model = Model
   { mStatus :: Status
@@ -67,42 +66,57 @@ drawAllGood = withAttr (attrName "good") <| str "All good!"
 
 drawCompiling :: Maybe String -> Widget Name
 drawCompiling triggerFile = 
-  str <| case triggerFile of
-    Nothing -> "Compiling"
-    Just file -> "Compiling (triggered by: " ++ file ++ ")"
+  case triggerFile of
+    Nothing -> str "Compiling"
+    Just file ->
+      hBox
+        [ str "Compiling (triggered by: "
+        , withAttr (attrName "path") <| str file
+        , str ")"
+        ]
 
 drawErrors :: List Error -> Widget Name
 drawErrors errors = 
   errors
   |> List.indexedMap drawError
-  |> BT.table
-  |> BT.alignRight 2
-  |> BT.renderTable
+  |> vBox
 
-drawError :: Int -> Error -> List (Widget Name)
+drawError :: Int -> Error -> Widget Name
 drawError i err =
   if eExpanded err then
     drawExpandedError i <| eInfo err
   else
     drawCollapsedError i <| eInfo err
 
-drawExpandedError :: Int -> ErrorInfo -> List (Widget Name)
+drawExpandedError :: Int -> ErrorInfo -> Widget Name
 drawExpandedError i info =
+  hBox
     [ clickable (ErrorAtIndex i) <| str "[-] "
-    , eFullError info
-        |> NonEmpty.toList
-        |> List.map str
-        |> vBox
-    , str ""
+    , vBox (firstLine : restOfLines)
+    , str " "
     ]
+      where
+        firstLine = clickable (ErrorAtIndex i) <| str <| eHeaderLine info
+        restOfLines = 
+          eFullError info
+              |> NonEmpty.toList
+              |> (++ [" "])
+              |> List.map (emptyLineToSpace >> str)
 
+emptyLineToSpace :: String -> String
+emptyLineToSpace line =
+  if line == "" then
+    " "
+  else
+    line
 
-drawCollapsedError :: Int -> ErrorInfo -> List (Widget Name)
+drawCollapsedError :: Int -> ErrorInfo -> Widget Name
 drawCollapsedError i info =
+  hBox
   -- TODO group by paths?
       [ clickable (ErrorAtIndex i) <| str "[+] "
       , clickable (ErrorAtIndex i) <| str <| eFirstLine info
-      , clickable (ErrorAtIndex i) <| str <| ePath info
+      , clickable (ErrorAtIndex i) <| withAttr (attrName "path") <| str <| ePath info
       ]
 
 ------- ATTR MAP
@@ -111,6 +125,7 @@ attributeMap :: Model -> AttrMap
 attributeMap _ = 
   attrMap V.defAttr 
     [ (attrName "good", fg V.green)
+    , (attrName "path", fg V.brightBlack)
     ]
 
 ------- EVENT
