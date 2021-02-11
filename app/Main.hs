@@ -2,28 +2,27 @@ module Main where
 
 import Brick (customMain)
 import Brick.BChan (newBChan)
-import NriPrelude
 import Control.Concurrent (forkIO)
 import Control.Monad (void)
+import qualified Graphics.Vty as V
 import Lib (app, initModel)
-import Prelude (Maybe(Just), (=<<), return, IO)
+import NriPrelude
 import Recompile (recompile)
 import Watch (watchElmFiles)
-import qualified Graphics.Vty as V
+import Prelude (IO, Maybe (Just), return, (=<<))
+
 
 main :: IO ()
 main = do
-  chan <- newBChan 10
-  recompile Nothing chan
-  void <| forkIO <| watchElmFiles chan recompile
+    chan <- newBChan 10
+    recompile Nothing chan
+    void <| forkIO <| watchElmFiles chan recompile
 
-  let buildVty = do
-        v <- V.mkVty =<< V.standardIOConfig
-        V.setMode (V.outputIface v) V.Mouse True
-        return v
+    let buildVty = do
+            v <- V.mkVty =<< V.standardIOConfig
+            V.setMode (V.outputIface v) V.Mouse True
+            return v
 
-  initialVty <- buildVty
+    initialVty <- buildVty
 
-  void <| customMain initialVty buildVty (Prelude.Just chan) app initModel
-
-
+    void <| customMain initialVty buildVty (Prelude.Just chan) app initModel
