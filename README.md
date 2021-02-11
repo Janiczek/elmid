@@ -10,3 +10,4 @@
 - [ ] debounce
 - [ ] after successful Elm compiler run, run elm-review too and display its errors similarly
 - [ ] show the line number in the collapsed view
+- [ ] check for Debug.logs and warn user about them (should still be "All good" even if they're there)
