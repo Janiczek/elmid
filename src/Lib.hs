@@ -54,6 +54,7 @@ initModel =
 data Name
     = File String
     | ErrorAt String Int
+    | AppViewport
     deriving (Show, Ord, Eq)
 
 
@@ -78,12 +79,14 @@ app =
 
 draw :: Model -> List (Widget Name)
 draw model =
-    case mStatus model of
-        AllGood -> [drawAllGood]
-        Compiling triggerFile -> [drawCompiling triggerFile]
-        Errors errors expandedFiles expandedErrors ->
-            [drawErrors errors expandedFiles expandedErrors]
-        CouldntParseElmMakeOutput jsonError -> [drawJsonError jsonError]
+    let widget =
+            case mStatus model of
+                AllGood -> drawAllGood
+                Compiling triggerFile -> drawCompiling triggerFile
+                Errors errors expandedFiles expandedErrors ->
+                    drawErrors errors expandedFiles expandedErrors
+                CouldntParseElmMakeOutput jsonError -> drawJsonError jsonError
+     in [B.viewport AppViewport B.Vertical widget]
 
 
 drawAllGood :: Widget Name
@@ -237,8 +240,17 @@ attributeMap _ =
 handleEvent :: Model -> BrickEvent Name Msg -> EventM Name (Next Model)
 handleEvent model event =
     case event of
-        BT.MouseDown name _ _ _ ->
+        BT.MouseDown name button _ _ ->
             case name of
+                AppViewport ->
+                    case button of
+                        V.BScrollUp -> do
+                            B.vScrollBy (B.viewportScroll AppViewport) (-3)
+                            B.continue model
+                        V.BScrollDown -> do
+                            B.vScrollBy (B.viewportScroll AppViewport) 3
+                            B.continue model
+                        _ -> B.continue model
                 ErrorAt path i ->
                     B.continue
                         <| case mStatus model of
