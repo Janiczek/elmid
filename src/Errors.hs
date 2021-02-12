@@ -159,7 +159,7 @@ joinToLines fragments =
                 let isLast = List.isEmpty rest
                     addedToLine =
                         if isLast
-                            then a : b : currentLine
+                            then b : a : currentLine
                             else a : currentLine
                     makeNewLine =
                         if ignoreNext
