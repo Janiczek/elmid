@@ -2,6 +2,7 @@
 
 ## TODO
 
+- [ ] Fix graphical glitches for the JSON rendering
 - [ ] ellipsis-clamp the path *from the left* so that the filename is always shown
 - [ ] try using https://github.com/turboMaCk/unix-recursive
 - [ ] debounce
