@@ -152,6 +152,7 @@ drawExpandedError path i err =
             [ B.clickable (ErrorAt path i) <| B.str <| eTitle err
             , B.str " "
             , drawMessage <| eMessage err
+            , B.str " "
             ]
         ]
 
@@ -190,25 +191,25 @@ drawFragment fragment =
      in BM.markup markup
 
 
-color :: String -> Maybe VAC.Color
+color :: Maybe String -> Maybe VAC.Color
 color string =
     case string of
-        "red" -> Just VAC.red
-        "RED" -> Just VAC.brightRed
-        "magenta" -> Just VAC.magenta
-        "MAGENTA" -> Just VAC.brightMagenta
-        "yellow" -> Just VAC.yellow
-        "YELLOW" -> Just VAC.brightYellow
-        "green" -> Just VAC.green
-        "GREEN" -> Just VAC.brightGreen
-        "cyan" -> Just VAC.cyan
-        "CYAN" -> Just VAC.brightCyan
-        "blue" -> Just VAC.blue
-        "BLUE" -> Just VAC.brightBlue
-        "black" -> Just VAC.black
-        "BLACK" -> Just VAC.brightBlack
-        "white" -> Just VAC.white
-        "WHITE" -> Just VAC.brightWhite
+        Just "red" -> Just VAC.red
+        Just "RED" -> Just VAC.brightRed
+        Just "magenta" -> Just VAC.magenta
+        Just "MAGENTA" -> Just VAC.brightMagenta
+        Just "yellow" -> Just VAC.yellow
+        Just "YELLOW" -> Just VAC.brightYellow
+        Just "green" -> Just VAC.green
+        Just "GREEN" -> Just VAC.brightGreen
+        Just "cyan" -> Just VAC.cyan
+        Just "CYAN" -> Just VAC.brightCyan
+        Just "blue" -> Just VAC.blue
+        Just "BLUE" -> Just VAC.brightBlue
+        Just "black" -> Just VAC.black
+        Just "BLACK" -> Just VAC.brightBlack
+        Just "white" -> Just VAC.white
+        Just "WHITE" -> Just VAC.brightWhite
         _ -> Nothing
 
 

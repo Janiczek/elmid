@@ -82,7 +82,7 @@ fragmentToString fragment =
 data FormattedTextOptions = FormattedTextOptions
     { fBold :: Bool
     , fUnderline :: Bool
-    , fColor :: String
+    , fColor :: Maybe String
     , fString :: String
     }
     deriving (Show)
@@ -201,5 +201,5 @@ formattedTextOptionsDecoder =
     FormattedTextOptions
         <$> JD.key "bold" JD.bool
         <*> JD.key "underline" JD.bool
-        <*> JD.key "color" JD.string
+        <*> JD.key "color" (JD.nullable JD.string)
         <*> JD.key "string" JD.string
