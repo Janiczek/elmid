@@ -41,6 +41,7 @@ flags =
             )
 
 
+opts :: ParserInfo Flags
 opts =
     info
         (flags <**> helper)

@@ -1,9 +1,8 @@
 module Recompile (recompile) where
 
 import Brick.BChan (BChan, writeBChan)
-import Flags
+import Flags (Flags (..))
 import Lib (Msg (..))
-import qualified Maybe
 import NriPrelude
 import System.Process (readProcessWithExitCode)
 import Prelude (FilePath, IO)
@@ -17,6 +16,8 @@ recompile flags path chan = do
             (fElmPath flags)
             [ "make"
             , fMainPath flags
+            , "--report"
+            , "json"
             , "--output"
             , "/dev/null"
             ]

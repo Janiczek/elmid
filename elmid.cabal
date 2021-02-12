@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 88bc353bcdff774c4749a55ab8d94d7344a296a4ec972cc3b4da03ff03861b05
+-- hash: 4d9f0800c4fc89be89a2c1f9999dbe6f29a9d6bd67704d400df2970a72e7a9ce
 
 name:           elmid
 version:        0.1.0.0
@@ -35,8 +35,11 @@ library
   default-extensions: NoImplicitPrelude OverloadedStrings
   build-depends:
       Glob
+    , aeson-combinators
     , base >=4.7 && <5
     , brick >=0.60
+    , bytestring
+    , containers
     , dir-traverse
     , directory
     , linux-inotify
@@ -58,11 +61,14 @@ executable elmid
   hs-source-dirs:
       app
   default-extensions: NoImplicitPrelude OverloadedStrings
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates -Wmonomorphism-restriction -Wimplicit-prelude -Wmissing-local-signatures -Wmissing-exported-signatures -Wmissing-home-modules -Widentities -Wredundant-constraints -Wpartial-fields
   build-depends:
       Glob
+    , aeson-combinators
     , base >=4.7 && <5
     , brick >=0.60
+    , bytestring
+    , containers
     , dir-traverse
     , directory
     , elmid

@@ -5,7 +5,7 @@ import Control.Monad (forever, void, when)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Data.Traversable (for)
-import Flags
+import Flags (Flags (..))
 import Lib (Msg)
 import NriPrelude
 import System.Directory (doesDirectoryExist)
@@ -29,7 +29,7 @@ watchElmFiles flags chan handleEvent = do
 
 addWatchesRecursively :: FS.Inotify -> FilePath -> IO ()
 addWatchesRecursively inotify dirpath = do
-    FS.addWatch inotify dirpath FS.in_CLOSE_WRITE
+    _ <- FS.addWatch inotify dirpath FS.in_CLOSE_WRITE
     subdirs <- D.getDirFiltered shouldRecurse dirpath
     void <| for subdirs <| \subdir -> FS.addWatch inotify subdir FS.in_CLOSE_WRITE
 
