@@ -1,10 +1,8 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.3.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 4d9f0800c4fc89be89a2c1f9999dbe6f29a9d6bd67704d400df2970a72e7a9ce
 
 name:           elmid
 version:        0.1.0.0
@@ -40,11 +38,14 @@ library
     , brick >=0.60
     , bytestring
     , containers
+    , linux-inotify
     , nri-prelude
     , optparse-applicative
     , process
     , split
     , text
+    , unix
+    , unix-recursive
     , vty
   default-language: Haskell2010
 
@@ -73,5 +74,7 @@ executable elmid
     , process
     , split
     , text
+    , unix
+    , unix-recursive
     , vty
   default-language: Haskell2010
