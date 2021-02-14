@@ -24,8 +24,8 @@ dependencies:
 - brick >= 0.60
 - bytestring
 - containers
-- dir-traverse
-- directory
+- unix-recursive
+- unix
 - Glob
 - linux-inotify
 - nri-prelude

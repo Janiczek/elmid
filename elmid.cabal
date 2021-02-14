@@ -74,6 +74,4 @@ executable elmid
     , split
     , text
     , vty
-    , unix-recursive
-    , unix
   default-language: Haskell2010
