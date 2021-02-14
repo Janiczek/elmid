@@ -25,6 +25,17 @@ packages:
       sha256: 9c35bd5ba4b04b673b66a63bca4aaff79f79ec4e0b5fcee3163c9e798de89fbe
   original:
     hackage: brick-0.60.1@sha256:bbd4eca3831291562e303c7aceb11087ee14d7821bdb1c4608c3d500f0420429,16152
+- completed:
+    size: 8447
+    url: https://github.com/turboMaCk/unix-recursive/archive/32c555913cdacb8070b66674caf8248bde3d20c2.tar.gz
+    name: unix-recursive
+    version: 0.1.0.0
+    sha256: 70d9418d5bf627af043502e18cafdcf258e357496c17dc141744fd2c9516aad2
+    pantry-tree:
+      size: 1193
+      sha256: 180417d1582feee781c77fcda7d60535f4c7c14e14d1d03578a9955a11272572
+  original:
+    url: https://github.com/turboMaCk/unix-recursive/archive/32c555913cdacb8070b66674caf8248bde3d20c2.tar.gz
 snapshots:
 - completed:
     size: 563099

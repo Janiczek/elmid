@@ -8,12 +8,12 @@ import Data.Traversable (for)
 import Flags (Flags (..))
 import Lib (Msg)
 import NriPrelude
-import System.Directory (doesDirectoryExist)
-import qualified System.Directory.Recursive as D
 import System.FilePath.Glob (Pattern)
 import qualified System.FilePath.Glob as Glob
 import qualified System.Linux.Inotify as FS
-import Prelude (FilePath, IO, return)
+import qualified System.Posix.Files as Posix
+import qualified System.Posix.Recursive as Recursive
+import Prelude (FilePath, IO, length, drop, otherwise, any)
 
 
 watchElmFiles :: Flags -> BChan Msg -> (Maybe FilePath -> BChan Msg -> IO ()) -> IO ()
@@ -30,27 +30,33 @@ watchElmFiles flags chan handleEvent = do
 addWatchesRecursively :: FS.Inotify -> FilePath -> IO ()
 addWatchesRecursively inotify dirpath = do
     _ <- FS.addWatch inotify dirpath FS.in_CLOSE_WRITE
-    subdirs <- D.getDirFiltered shouldRecurse dirpath
+    subdirs <- Recursive.listAccessible fsRecurseConf dirpath
     void <| for subdirs <| \subdir -> FS.addWatch inotify subdir FS.in_CLOSE_WRITE
+  where
+    fsRecurseConf :: Recursive.Conf
+    fsRecurseConf =
+        Recursive.Conf
+            { Recursive.preCheck = \path -> not <| any (path `isSuffixOf`) ignoredDirs
+            , Recursive.postCheck = \f _ -> Posix.isDirectory f
+            , Recursive.followSymlinks = False
+            }
+
+    ignoredDirs :: [FilePath]
+    ignoredDirs = ["node_modules", "elm-stuff"]
 
 
-shouldRecurse :: FilePath -> IO Bool
-shouldRecurse path = do
-    isDir <- doesDirectoryExist path
-    let isInteresting = not <| Glob.match ignoredFolderPattern path
-    return <| isDir && isInteresting
+isSuffixOf :: FilePath -> FilePath -> Bool
+isSuffixOf needle haystack
+    | needleLen > hayLen = False
+    | otherwise = needle == drop (hayLen - needleLen) haystack
+  where
+    needleLen = length needle
+    hayLen =length haystack
 
 
 isElmFile :: FilePath -> Bool
 isElmFile path =
     Glob.match elmFilePattern path
-
-
-ignoredFolderPattern :: Pattern
-ignoredFolderPattern =
-    -- TODO use the `ignore` package instead
-    -- https://hackage.haskell.org/package/ignore-0.1.1.0/docs/Ignore.html
-    Glob.compile "**/node_modules"
 
 
 elmFilePattern :: Pattern
