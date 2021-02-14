@@ -4,11 +4,12 @@ import Data.Semigroup ((<>))
 import NriPrelude
 import Options.Applicative
 import Prelude (String)
+import System.Posix.ByteString.FilePath (RawFilePath)
 
 
 data Flags = Flags
     { fElmPath :: String
-    , fWatchedFolder :: String
+    , fWatchedFolder :: RawFilePath
     , fIgnoredDirectory :: String
     , fMainPath :: String
     }

@@ -32,8 +32,7 @@ library
       src
   default-extensions: NoImplicitPrelude OverloadedStrings
   build-depends:
-      Glob
-    , aeson-combinators
+      aeson-combinators
     , base >=4.7 && <5
     , brick >=0.60
     , bytestring
@@ -61,8 +60,7 @@ executable elmid
   default-extensions: NoImplicitPrelude OverloadedStrings
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates -Wmonomorphism-restriction -Wimplicit-prelude -Wmissing-local-signatures -Wmissing-exported-signatures -Wmissing-home-modules -Widentities -Wredundant-constraints -Wpartial-fields
   build-depends:
-      Glob
-    , aeson-combinators
+      aeson-combinators
     , base >=4.7 && <5
     , brick >=0.60
     , bytestring

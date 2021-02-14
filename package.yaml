@@ -26,7 +26,6 @@ dependencies:
 - containers
 - unix-recursive
 - unix
-- Glob
 - linux-inotify
 - nri-prelude
 - optparse-applicative
