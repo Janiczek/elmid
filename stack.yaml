@@ -43,12 +43,12 @@ packages:
 extra-deps:
 - linux-inotify-0.3.0.2@sha256:c1babde8fd104151696cf4cf95f21d72a056ead89f879abf68330476c818af44,2538
 - brick-0.60.1@sha256:bbd4eca3831291562e303c7aceb11087ee14d7821bdb1c4608c3d500f0420429,16152
-- github: turboMaCk/unix-recursive
-  commit: 4112e3b5c7838f556e9d1aa0a4a843375e867bcb
 - portable-lines-0.1@sha256:21c3b905888a4b43f957cd8e8cdf2af00942bb161aa19a6b20db18b661de0510,1552
+- dir-traverse-0.2.3.0@sha256:adcc128f201ff95131b15ffe41365dc99c50dc3fa3a910f021521dc734013bfa,2137
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
+#
 
 # Extra package databases containing global packages
 # extra-package-dbs: []

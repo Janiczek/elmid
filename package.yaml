@@ -21,10 +21,10 @@ description:         Please see the README on GitHub at <https://github.com/Jani
 dependencies:
 - base >= 4.7 && < 5
 - brick >= 0.60
-- bytestring
 - containers
-- unix-recursive
-- unix
+- dir-traverse
+- directory
+- Glob
 - linux-inotify
 - nri-prelude
 - optparse-applicative
