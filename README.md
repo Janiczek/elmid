@@ -30,6 +30,7 @@ Have `stack` installed. Then cloning this repo and running `stack build` / `stac
 
 ## TODO
 
+- [ ] watch for creation of new directories and start watching them too
 - [ ] ellipsis-clamp the path *from the left* so that the filename is always shown
 - [ ] debounce
 - [ ] after successful Elm compiler run, run `elm-review` too and display its errors similarly
