@@ -19,7 +19,6 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/Janiczek/elmid#readme>
 
 dependencies:
-- aeson-combinators
 - base >= 4.7 && < 5
 - brick >= 0.60
 - bytestring
@@ -29,6 +28,7 @@ dependencies:
 - linux-inotify
 - nri-prelude
 - optparse-applicative
+- portable-lines
 - process
 - split
 - text
