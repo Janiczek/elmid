@@ -5,13 +5,6 @@
 
 packages:
 - completed:
-    hackage: dir-traverse-0.2.3.0@sha256:adcc128f201ff95131b15ffe41365dc99c50dc3fa3a910f021521dc734013bfa,2137
-    pantry-tree:
-      size: 389
-      sha256: b19f0562746dfd0f8f21eccab6584592f55fb781ca3e043da9132cc23d8a5b99
-  original:
-    hackage: dir-traverse-0.2.3.0@sha256:adcc128f201ff95131b15ffe41365dc99c50dc3fa3a910f021521dc734013bfa,2137
-- completed:
     hackage: linux-inotify-0.3.0.2@sha256:c1babde8fd104151696cf4cf95f21d72a056ead89f879abf68330476c818af44,2538
     pantry-tree:
       size: 277
@@ -25,6 +18,17 @@ packages:
       sha256: 9c35bd5ba4b04b673b66a63bca4aaff79f79ec4e0b5fcee3163c9e798de89fbe
   original:
     hackage: brick-0.60.1@sha256:bbd4eca3831291562e303c7aceb11087ee14d7821bdb1c4608c3d500f0420429,16152
+- completed:
+    size: 8445
+    url: https://github.com/turboMaCk/unix-recursive/archive/4112e3b5c7838f556e9d1aa0a4a843375e867bcb.tar.gz
+    name: unix-recursive
+    version: 0.1.0.0
+    sha256: 0d8ab47157fa8427f26e0c60652512c65646d12d0f2caa6bf6fee608210a991f
+    pantry-tree:
+      size: 1193
+      sha256: d9c958095e74384cafaa7dd3e1c2ebdd36cc8789299d79c51a7f2b3fd5c43ad7
+  original:
+    url: https://github.com/turboMaCk/unix-recursive/archive/4112e3b5c7838f556e9d1aa0a4a843375e867bcb.tar.gz
 - completed:
     hackage: portable-lines-0.1@sha256:21c3b905888a4b43f957cd8e8cdf2af00942bb161aa19a6b20db18b661de0510,1552
     pantry-tree:
