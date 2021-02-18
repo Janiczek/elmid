@@ -1,5 +1,31 @@
 # elmid
 
+Like `ghcid`, but for Elm!
+
+A CLI filesystem watcher that runs `elm make` automatically and gives you the errors grouped by files, in a collapsible format.
+
+![elmid in action](https://github.com/Janiczek/elmid/raw/main/doc/elmid.gif)
+
+## Usage
+
+```bash
+$ elmid src/Main.elm
+```
+
+```bash
+Usage: elmid [--elm-path ELM_PATH]
+             [--watched-folder PATH]
+             [--ignored-folder FOLDER]
+             [--main-cwd PATH]
+             MAIN_PATH
+```
+
+If in doubt, run `elmid --help`.
+
+## Building
+
+Have `stack` installed. Then cloning this repo and running `stack build` / `stack install` should be enough.
+
 ## TODO
 
 - [ ] ellipsis-clamp the path *from the left* so that the filename is always shown
