@@ -3,14 +3,13 @@ module Flags where
 import Data.Semigroup ((<>))
 import NriPrelude
 import Options.Applicative
-import Prelude (String)
 import System.Posix.ByteString.FilePath (RawFilePath)
+import Prelude (String)
 
 
 data Flags = Flags
     { fElmPath :: String
     , fWatchedFolder :: RawFilePath
-    , fIgnoredDirectory :: String
     , fMainPath :: String
     }
 
@@ -29,12 +28,6 @@ flags =
                 <> metavar "FOLDER"
                 <> help "Path to the watched folder (containing Elm files). Defaults to `.`."
                 <> value "."
-            )
-        <*> strOption
-            ( long "ignored-directory"
-                <> metavar "DIRNAME"
-                <> help "Directory name to be ignored by the watcher (like `node_modules` or `tests`). Defaults to `node_modules`."
-                <> value "node_modules"
             )
         <*> strArgument
             ( metavar "MAIN_PATH"
