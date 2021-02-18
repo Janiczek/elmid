@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4d9f0800c4fc89be89a2c1f9999dbe6f29a9d6bd67704d400df2970a72e7a9ce
+-- hash: 8f0e594d47bc7706dd1d644c5c5c5db95fa76e6cb54fb024732ba2e7ae0bbe83
 
 name:           elmid
 version:        0.1.0.0
@@ -35,16 +35,15 @@ library
   default-extensions: NoImplicitPrelude OverloadedStrings
   build-depends:
       Glob
-    , aeson-combinators
     , base >=4.7 && <5
     , brick >=0.60
-    , bytestring
     , containers
     , dir-traverse
     , directory
     , linux-inotify
     , nri-prelude
     , optparse-applicative
+    , portable-lines
     , process
     , split
     , text
@@ -64,10 +63,8 @@ executable elmid
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates -Wmonomorphism-restriction -Wimplicit-prelude -Wmissing-local-signatures -Wmissing-exported-signatures -Wmissing-home-modules -Widentities -Wredundant-constraints -Wpartial-fields
   build-depends:
       Glob
-    , aeson-combinators
     , base >=4.7 && <5
     , brick >=0.60
-    , bytestring
     , containers
     , dir-traverse
     , directory
@@ -75,6 +72,7 @@ executable elmid
     , linux-inotify
     , nri-prelude
     , optparse-applicative
+    , portable-lines
     , process
     , split
     , text

@@ -25,6 +25,13 @@ packages:
       sha256: 9c35bd5ba4b04b673b66a63bca4aaff79f79ec4e0b5fcee3163c9e798de89fbe
   original:
     hackage: brick-0.60.1@sha256:bbd4eca3831291562e303c7aceb11087ee14d7821bdb1c4608c3d500f0420429,16152
+- completed:
+    hackage: portable-lines-0.1@sha256:21c3b905888a4b43f957cd8e8cdf2af00942bb161aa19a6b20db18b661de0510,1552
+    pantry-tree:
+      size: 371
+      sha256: 2eeb1d9aefe4fb172dc56baa75f09aaaac824799d926922b4673188293f9f95c
+  original:
+    hackage: portable-lines-0.1@sha256:21c3b905888a4b43f957cd8e8cdf2af00942bb161aa19a6b20db18b661de0510,1552
 snapshots:
 - completed:
     size: 563099
