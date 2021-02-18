@@ -30,6 +30,7 @@ Have `stack` installed. Then cloning this repo and running `stack build` / `stac
 
 ## TODO
 
+- [ ] MacOS support!!
 - [ ] watch for creation of new directories and start watching them too
 - [ ] ellipsis-clamp the path *from the left* so that the filename is always shown
 - [ ] debounce
