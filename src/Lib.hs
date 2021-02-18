@@ -2,29 +2,20 @@ module Lib (Msg (..), initModel, app) where
 
 import Brick (App (..), AttrMap, BrickEvent, EventM, Next, Widget)
 import qualified Brick as B
-import qualified Brick.Markup as BM
 import qualified Brick.Types as BT
+import Data.Function (on)
+import qualified Data.List as List (groupBy)
+import qualified Data.List.NonEmpty as NonEmpty
+import Data.Maybe (fromJust)
 import Data.Set (Set)
 import qualified Data.Set as Set
-import qualified Data.Text as T
-import Data.Text.Markup (Markup, (@@))
-import qualified Data.Text.Markup as M
-import Errors (
-    Error (..),
-    FileErrorGroup (..),
-    FormattedTextOptions (..),
-    Message,
-    MessageFragment (..),
- )
+import Errors (ErrorInfo (..))
 import qualified Errors
 import qualified Graphics.Vty as V
-import qualified Graphics.Vty.Attributes as VA
-import qualified Graphics.Vty.Attributes.Color as VAC
 import qualified List
-import qualified Maybe
 import NriPrelude
 import System.Exit (ExitCode (ExitSuccess))
-import Prelude (Either (..), String, return)
+import Prelude (String, return)
 
 
 data Model = Model
@@ -37,10 +28,9 @@ data Status
     = AllGood
     | Compiling (Maybe String)
     | Errors
-        (List FileErrorGroup)
-        (Set String) -- expanded files:
-        (Set (String, Int)) -- expanded errors: (path,index of error)
-    | CouldntParseElmMakeOutput String
+        (Set String) -- expanded files
+        (Set ErrorInfo)
+        (List ErrorInfo)
 
 
 initModel :: Model
@@ -52,15 +42,15 @@ initModel =
 
 
 data Name
-    = File String
-    | ErrorAt String Int
+    = FileToToggle String
+    | ErrorToToggle ErrorInfo
     | AppViewport
     deriving (Show, Ord, Eq)
 
 
 data Msg
     = RecompileStarted (Maybe String)
-    | GotElmMakeOutput (ExitCode, String, String)
+    | GotElmMakeOutput ExitCode String
     deriving (Show)
 
 
@@ -83,9 +73,7 @@ draw model =
             case mStatus model of
                 AllGood -> drawAllGood
                 Compiling triggerFile -> drawCompiling triggerFile
-                Errors errors expandedFiles expandedErrors ->
-                    drawErrors errors expandedFiles expandedErrors
-                CouldntParseElmMakeOutput jsonError -> drawJsonError jsonError
+                Errors expandedFiles expandedErrors errors -> drawErrors expandedFiles expandedErrors errors
      in [B.viewport AppViewport B.Vertical widget]
 
 
@@ -105,123 +93,80 @@ drawCompiling triggerFile =
                 ]
 
 
-drawJsonError :: String -> Widget Name
-drawJsonError err =
-    B.strWrap err
-
-
-drawErrors :: List FileErrorGroup -> Set String -> Set (String, Int) -> Widget Name
-drawErrors files expandedFiles expandedErrors =
-    files
-        |> List.map (drawErrorsForFile expandedFiles expandedErrors)
+drawErrors :: Set String -> Set ErrorInfo -> List ErrorInfo -> Widget Name
+drawErrors expandedFiles expandedErrors errors =
+    errors
+        |> List.groupBy ((==) `on` ePath)
+        |> List.map (drawErrorsForPath expandedFiles expandedErrors)
         |> B.vBox
 
 
-drawErrorsForFile :: Set String -> Set (String, Int) -> FileErrorGroup -> Widget Name
-drawErrorsForFile expandedFiles expandedErrors file =
-    let path = fPath file
-        errors = fErrors file
+drawErrorsForPath :: Set String -> Set ErrorInfo -> List ErrorInfo -> Widget Name
+drawErrorsForPath expandedFiles expandedErrors errors =
+    let path =
+            List.head errors
+                |> fromJust
+                |> ePath
         isExpanded = Set.member path expandedFiles
 
         button :: String
         button = if isExpanded then "(-) " else "(+) "
      in ( B.hBox
-            [ (B.clickable (File path) <| B.withAttr (B.attrName "path") <| B.str button)
-            , (B.clickable (File path) <| B.withAttr (B.attrName "path") <| B.str path)
+            [ (B.clickable (FileToToggle path) <| B.withAttr (B.attrName "path") <| B.str button)
+            , (B.clickable (FileToToggle path) <| B.withAttr (B.attrName "path") <| B.str path)
             ] :
           if isExpanded
             then
-                List.indexedMap (drawError path expandedErrors) errors
+                List.map (drawError expandedErrors) errors
                     ++ [B.str " "]
             else []
         )
             |> B.vBox
 
 
-drawError :: String -> Set (String, Int) -> Int -> Error -> Widget Name
-drawError path expandedErrors i err =
+drawError :: Set ErrorInfo -> ErrorInfo -> Widget Name
+drawError expandedErrors err =
     if isExpanded
-        then drawExpandedError path i err
-        else drawCollapsedError path i err
+        then drawExpandedError err
+        else drawCollapsedError err
   where
-    isExpanded = Set.member (path, i) expandedErrors
+    isExpanded = Set.member err expandedErrors
 
 
-drawExpandedError :: String -> Int -> Error -> Widget Name
-drawExpandedError path i err =
+drawExpandedError :: ErrorInfo -> Widget Name
+drawExpandedError err =
     B.hBox
-        [ B.clickable (ErrorAt path i) <| B.str "[-] "
-        , B.vBox
-            [ B.clickable (ErrorAt path i) <| B.str <| eTitle err
-            , B.str " "
-            , drawMessage <| eMessage err
-            , B.str " "
-            ]
+        [ B.clickable event <| B.str "[-] "
+        , B.vBox (firstLine : restOfLines)
+        , B.str " "
         ]
+  where
+    event = ErrorToToggle err
+    firstLine = B.clickable event <| B.str <| eHeaderLine err
+
+    restOfLines :: List (Widget Name)
+    restOfLines =
+        eFullError err
+            |> NonEmpty.toList
+            |> (++ [" "])
+            |> List.map (emptyLineToSpace >> B.str)
 
 
-drawMessage :: Message -> Widget Name
-drawMessage fragments =
-    fragments
-        |> Errors.normalizeFragments
-        |> List.map drawLine
-        |> B.vBox
+emptyLineToSpace :: String -> String
+emptyLineToSpace line =
+    if line == ""
+        then " "
+        else line
 
 
-drawLine :: List MessageFragment -> Widget Name
-drawLine fragments =
-    fragments
-        |> List.map drawFragment
-        |> B.hBox
-
-
-drawFragment :: MessageFragment -> Widget Name
-drawFragment fragment =
-    let markup :: Markup VA.Attr
-        markup =
-            case fragment of
-                RawText text ->
-                    M.fromText <| T.pack text
-                FormattedText opts ->
-                    let attr =
-                            VA.defAttr
-                                `VA.withStyle` (if fBold opts then VA.bold else VA.defaultStyleMask)
-                                `VA.withStyle` (if fUnderline opts then VA.underline else VA.defaultStyleMask)
-                                `VA.withForeColor` (Maybe.withDefault VAC.red (color (fColor opts)))
-                     in (T.pack <| fString opts) @@ attr
-                Newline ->
-                    M.fromText "\n "
-     in BM.markup markup
-
-
-color :: Maybe String -> Maybe VAC.Color
-color string =
-    case string of
-        Just "red" -> Just VAC.red
-        Just "RED" -> Just VAC.brightRed
-        Just "magenta" -> Just VAC.magenta
-        Just "MAGENTA" -> Just VAC.brightMagenta
-        Just "yellow" -> Just VAC.yellow
-        Just "YELLOW" -> Just VAC.brightYellow
-        Just "green" -> Just VAC.green
-        Just "GREEN" -> Just VAC.brightGreen
-        Just "cyan" -> Just VAC.cyan
-        Just "CYAN" -> Just VAC.brightCyan
-        Just "blue" -> Just VAC.blue
-        Just "BLUE" -> Just VAC.brightBlue
-        Just "black" -> Just VAC.black
-        Just "BLACK" -> Just VAC.brightBlack
-        Just "white" -> Just VAC.white
-        Just "WHITE" -> Just VAC.brightWhite
-        _ -> Nothing
-
-
-drawCollapsedError :: String -> Int -> Error -> Widget Name
-drawCollapsedError path i err =
+drawCollapsedError :: ErrorInfo -> Widget Name
+drawCollapsedError err =
     B.hBox
-        [ B.clickable (ErrorAt path i) <| B.str "[+] "
-        , B.clickable (ErrorAt path i) <| B.str <| Errors.firstLine (eTitle err) (eMessage err)
+        [ B.clickable event <| B.str "[+] "
+        , B.clickable event <| B.str <| eFirstLine err
         ]
+  where
+    event = ErrorToToggle err
 
 
 ------- ATTR MAP
@@ -241,40 +186,38 @@ handleEvent :: Model -> BrickEvent Name Msg -> EventM Name (Next Model)
 handleEvent model event =
     case event of
         BT.MouseDown name button _ _ ->
-            case name of
-                AppViewport ->
-                    case button of
-                        V.BScrollUp -> do
-                            B.vScrollBy (B.viewportScroll AppViewport) (-3)
-                            B.continue model
-                        V.BScrollDown -> do
-                            B.vScrollBy (B.viewportScroll AppViewport) 3
-                            B.continue model
-                        _ -> B.continue model
-                ErrorAt path i ->
+            case (name, button) of
+                (_, V.BScrollUp) -> do
+                    B.vScrollBy (B.viewportScroll AppViewport) (-3)
+                    B.continue model
+                (_, V.BScrollDown) -> do
+                    B.vScrollBy (B.viewportScroll AppViewport) 3
+                    B.continue model
+                (ErrorToToggle err, _) ->
                     B.continue
                         <| case mStatus model of
-                            Errors errors expandedPaths expandedErrors ->
+                            Errors expandedPaths expandedErrors errors ->
                                 model
                                     { mStatus =
                                         Errors
-                                            errors
                                             expandedPaths
-                                            (toggle (path, i) expandedErrors)
+                                            (toggle err expandedErrors)
+                                            errors
                                     }
                             _ -> model
-                File path ->
+                (FileToToggle path, _) ->
                     B.continue
                         <| case mStatus model of
-                            Errors errors expandedPaths expandedErrors ->
+                            Errors expandedPaths expandedErrors errors ->
                                 model
                                     { mStatus =
                                         Errors
-                                            errors
                                             (toggle path expandedPaths)
                                             expandedErrors
+                                            errors
                                     }
                             _ -> model
+                _ -> B.continue model
         BT.VtyEvent ve ->
             case ve of
                 V.EvKey V.KEsc [] -> B.halt model
@@ -285,21 +228,19 @@ handleEvent model event =
             case ve of
                 RecompileStarted filepath ->
                     B.continue <| model{mStatus = Compiling filepath}
-                GotElmMakeOutput (exitCode, _, stderr) ->
+                GotElmMakeOutput exitCode stderr ->
                     B.continue
                         <| model
                             { mStatus =
                                 if exitCode == ExitSuccess
                                     then AllGood
-                                    else case Errors.fromElmMakeStderr stderr of
-                                        Left jsonError ->
-                                            CouldntParseElmMakeOutput jsonError
-                                        Right errors ->
-                                            let paths =
-                                                    errors
-                                                        |> List.map fPath
-                                                        |> Set.fromList
-                                             in Errors errors paths Set.empty
+                                    else
+                                        let errors = Errors.fromElmMakeStderr stderr
+                                            expandedFiles =
+                                                errors
+                                                    |> List.map ePath
+                                                    |> Set.fromList
+                                         in Errors expandedFiles Set.empty errors
                             }
         _ -> B.continue model
 
