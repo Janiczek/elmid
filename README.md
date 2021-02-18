@@ -4,6 +4,8 @@ Like `ghcid`, but for Elm!
 
 A CLI filesystem watcher that runs `elm make` automatically and gives you the errors grouped by files, in a collapsible format.
 
+> :warning: Linux only, for now. See [issue #1](https://github.com/Janiczek/elmid/issues/1) for details.
+
 ![elmid in action](https://github.com/Janiczek/elmid/raw/main/doc/elmid.gif)
 
 ## Usage
